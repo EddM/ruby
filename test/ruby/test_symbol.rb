@@ -352,6 +352,7 @@ class TestSymbol < Test::Unit::TestCase
     assert_equal(:foo, :FoO.downcase)
     assert_equal(:Foo, :foo.capitalize)
     assert_equal(:fOo, :FoO.swapcase)
+    assert_equal(:hElLo, :hello.spongebob)
   end
 
   def test_MATCH # '=~'
