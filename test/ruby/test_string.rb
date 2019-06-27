@@ -2358,6 +2358,10 @@ CODE
     assert_equal(S("ABC HELLO 123"), S("abc HELLO 123").upcase)
   end
 
+  def test_spongebob
+    assert_equal(S("bUt dOeS It sCaLe?"), S("But does it scale?").spongebob)
+  end
+
   def test_upcase!
     a = S("hello")
     b = a.dup

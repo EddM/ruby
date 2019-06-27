@@ -6641,6 +6641,33 @@ rb_str_ascii_casemap(VALUE source, VALUE target, OnigCaseFoldType *flags, rb_enc
     return target;
 }
 
+/*
+ *  call-seq:
+ *     str.spongebob              -> str or nil
+ *
+ *  sPoNgEbObS the contents of <i>str</i>.
+ */
+
+static VALUE
+rb_str_spongebob(int argc, VALUE *argv, VALUE str)
+{
+    rb_encoding *enc = str_true_enc(str);
+    long length = RSTRING_LEN(str);
+    VALUE ret[length];
+
+    OnigCaseFoldType flags[] = {
+        check_case_options(argc, argv, ONIGENC_CASE_DOWNCASE),
+        check_case_options(argc, argv, ONIGENC_CASE_UPCASE),
+    };
+
+    for (long i = 0; i < length; i++) {
+        VALUE charStr = str_substr(str, i, 1, FALSE);
+        ret[i] = rb_str_casemap(charStr, &flags[i % 2], enc);
+    }
+
+    return rb_str_concat_multi((int)length, ret, rb_str_new(0, 0));
+}
+
 static bool
 upcase_single(VALUE str)
 {
@@ -11016,6 +11043,20 @@ sym_empty(VALUE sym)
  */
 
 static VALUE
+sym_spongebob(int argc, VALUE *argv, VALUE sym)
+{
+    return rb_str_intern(rb_str_spongebob(argc, argv, rb_sym2str(sym)));
+}
+
+/*
+ * call-seq:
+ *   sym.upcase              -> symbol
+ *   sym.upcase([options])   -> symbol
+ *
+ * Same as <code>sym.to_s.upcase.intern</code>.
+ */
+
+static VALUE
 sym_upcase(int argc, VALUE *argv, VALUE sym)
 {
     return rb_str_intern(rb_str_upcase(argc, argv, rb_sym2str(sym)));
@@ -11189,6 +11230,7 @@ Init_String(void)
     sym_lithuanian = ID2SYM(rb_intern("lithuanian"));
     sym_fold       = ID2SYM(rb_intern("fold"));
 
+    rb_define_method(rb_cString, "spongebob", rb_str_spongebob, -1);
     rb_define_method(rb_cString, "upcase", rb_str_upcase, -1);
     rb_define_method(rb_cString, "downcase", rb_str_downcase, -1);
     rb_define_method(rb_cString, "capitalize", rb_str_capitalize, -1);
@@ -11322,6 +11364,7 @@ Init_String(void)
     rb_define_method(rb_cSymbol, "match", sym_match_m, -1);
     rb_define_method(rb_cSymbol, "match?", sym_match_m_p, -1);
 
+    rb_define_method(rb_cSymbol, "spongebob", sym_spongebob, -1);
     rb_define_method(rb_cSymbol, "upcase", sym_upcase, -1);
     rb_define_method(rb_cSymbol, "downcase", sym_downcase, -1);
     rb_define_method(rb_cSymbol, "capitalize", sym_capitalize, -1);
